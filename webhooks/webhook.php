@@ -5,7 +5,7 @@ if(isset($_REQUEST['hub_challenge'])){
 	$token = $_REQUEST['hub_verify_token'];
 }
 
-if($token == 'branchtoken'){
+if($token == "branchtoken"){
 	echo $challenge;
 }
 ?>
