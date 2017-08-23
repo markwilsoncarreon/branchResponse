@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Branch Response</title>
+	<link rel="stylesheet" type="text/css" href="https://bootswatch.com/darkly/bootstrap.min.css">
+	<style type="text/css">
+		#profile{
+			font-size: 20px;
+			margin-top: 10px;
+		}
+		#home{
+			border-radius: 5px;
+			padding: 5px;
+
+		}
+
+		#fb-btn, #logout{
+			padding-right: 10px;
+		}
+
+		#main-view, #logout{
+			display: none;
+		}
+	</style>
+</head>
+<body>
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '1418618541579323',
+      cookie     : true,
+      xfbml      : true,
+      version    : 'v2.8'
+    });
+    
+	FB.getLoginStatus(function(response) {
+	    statusChangeCallback(response);
+	});   
+  };
+
+  (function(d, s, id){
+     var js, fjs = d.getElementsByTagName(s)[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement(s); js.id = id;
+     js.src = "//connect.facebook.net/en_US/sdk.js";
+     fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'facebook-jssdk'));
+
+
+  function statusChangeCallback(response){
+  	if(response.status === 'connected'){
+  		console.log('Logged In');
+  		setElements(true);
+  		testAPI();
+  	}else{
+  		console.log('Not Logged In');
+  		setElements(false);
+  	}
+  }
+
+  function testAPI(){
+  	FB.api('/me?fields=id,name,email,birthday' ,function(response){
+  		if (response && !response.error) {
+  			console.log(response);
+  			buildProfile(response);
+  		}
+  	})
+
+  	FB.api('/me/feed', function(response){
+  		buildFeed(response);
+  	})
+  }
+
+  function buildProfile(user){
+  	var id = user.id, name = user.name, email = user.email, birthday = user.birthday;
+  		document.getElementById('userid').innerHTML = id;
+  		document.getElementById('name').innerHTML = name;
+  		document.getElementById('email').innerHTML = email;
+  		document.getElementById('birthday').innerHTML = birthday;
+  }
+
+  function buildFeed(feed){
+  	let output = '<h3>Latest Posts</h3>';
+  	for(let i in feed.data){
+  		if(feed.data[i].message){
+  			output += `
+  			<div class="well">
+  				<h5>${feed.data[i].message}</h5>
+  			</div>
+  			`;
+  		}
+  	}
+	document.getElementById('feed').innerHTML = output;
+  }
+
+	function checkLoginState() {
+	  FB.getLoginStatus(function(response) {
+	    statusChangeCallback(response);
+	  });
+	}
+
+
+	function setElements(isLoggedIn){
+		if(isLoggedIn){
+			document.getElementById('main-view').style.display = 'block';
+			document.getElementById('fb-btn').style.display = 'none';
+			document.getElementById('logout').style.display = 'block';
+			document.getElementById('feed').style.display = 'block';
+		}else{
+			document.getElementById('main-view').style.display = 'none';
+			document.getElementById('fb-btn').style.display = 'block';
+			document.getElementById('logout').style.display = 'none';
+			document.getElementById('feed').style.display = 'none';
+		}
+	}
+
+	function logout(){
+		FB.logout(function(response){
+			setElements(false);
+		});
+	}
+</script>
+
+
+
+
+
+
+<nav class="navbar navbar-expand-lg navbar-default">
+  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+    <div id="profile">
+      	<a id="home" class="nav-item nav-link active" href="#">Home</a>
+
+	    <div id="logout" class="navbar-right">
+	    	<a href="#" onclick="logout()">Logout</a>
+	    </div>
+	    <div id="fb-btn" class="navbar-right">
+		    <fb:login-button 
+			  scope="public_profile,email,user_birthday,user_posts"
+			  onlogin="checkLoginState();">
+			</fb:login-button>
+	    </div>
+
+    </div>
+  </div>
+</nav>
+
+<div id="main-view">
+	<h5>ID: <span id="userid"></span></h5>
+	<h5>Name: <span id="name"></span></h5>
+	<h5>Birthday: <span id="birthday"></span></h5>
+	<h5>Email: <span id="email"></span></h5>
+</div>
+
+
+<div id="feed"></div>
+
+</body>
+</html>
